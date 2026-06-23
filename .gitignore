@@ -1,6 +1,4 @@
-build/
-cmake-build-*/
-.qt/
+﻿cmake-build-*/
 .qtc_clangd/
 .vs/
 .vscode/
@@ -11,10 +9,4 @@ cmake-build-*/
 *.opensdf
 *.VC.db
 *.VC.opendb
-*.obj
-*.pdb
-*.ilk
-*.exe
-*.dll
-*.log
 _minted/

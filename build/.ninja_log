@@ -1,0 +1,12 @@
+# ninja log v6
+106	843	8039362071221087	.qt/qml_imports/MomentGenerator_build.cmake	b3abe86b33b4d02a
+106	843	8039362071221087	D:/Qt Projects/Moment_Generator/build/.qt/qml_imports/MomentGenerator_build.cmake	b3abe86b33b4d02a
+845	2332	8039362083189767	MomentGenerator_autogen/timestamp	a05577f2e2ef369e
+845	2332	8039362083189767	MomentGenerator_autogen/mocs_compilation.cpp	a05577f2e2ef369e
+845	2332	8039362083189767	D:/Qt Projects/Moment_Generator/build/MomentGenerator_autogen/timestamp	a05577f2e2ef369e
+845	2332	8039362083189767	D:/Qt Projects/Moment_Generator/build/MomentGenerator_autogen/mocs_compilation.cpp	a05577f2e2ef369e
+2394	5952	8039362086881545	CMakeFiles/MomentGenerator.dir/src/MomentEngine.cpp.obj	682b0298b0468758
+2358	6676	8039362086511482	CMakeFiles/MomentGenerator.dir/MomentGenerator_autogen/mocs_compilation.cpp.obj	2cb80c1fc5a9d8e6
+2370	6792	8039362086631503	CMakeFiles/MomentGenerator.dir/src/main.cpp.obj	a443b3489831aef0
+2382	8680	8039362086751526	CMakeFiles/MomentGenerator.dir/src/MainWindow.cpp.obj	51b564a53895d4ad
+8682	9118	8039362149751245	MomentGenerator.exe	e3fa350e17910778

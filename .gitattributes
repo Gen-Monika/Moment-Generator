@@ -1,0 +1,9 @@
+build/**/*.exe filter=lfs diff=lfs merge=lfs -text
+build/**/*.pdb filter=lfs diff=lfs merge=lfs -text
+build/**/*.ilk filter=lfs diff=lfs merge=lfs -text
+build/**/*.pak filter=lfs diff=lfs merge=lfs -text
+build/**/*.lib filter=lfs diff=lfs merge=lfs -text
+build/**/*.dat filter=lfs diff=lfs merge=lfs -text
+build/**/*.bin filter=lfs diff=lfs merge=lfs -text
+build/**/*.obj filter=lfs diff=lfs merge=lfs -text
+build/**/*.dll filter=lfs diff=lfs merge=lfs -text

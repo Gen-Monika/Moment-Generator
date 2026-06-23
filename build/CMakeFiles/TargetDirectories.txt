@@ -1,0 +1,6 @@
+D:/Qt Projects/Moment_Generator/build/CMakeFiles/MomentGenerator.dir
+D:/Qt Projects/Moment_Generator/build/CMakeFiles/MomentGenerator_qmlimportscan.dir
+D:/Qt Projects/Moment_Generator/build/CMakeFiles/edit_cache.dir
+D:/Qt Projects/Moment_Generator/build/CMakeFiles/rebuild_cache.dir
+D:/Qt Projects/Moment_Generator/build/CMakeFiles/MomentGenerator_autogen_timestamp_deps.dir
+D:/Qt Projects/Moment_Generator/build/CMakeFiles/MomentGenerator_autogen.dir
