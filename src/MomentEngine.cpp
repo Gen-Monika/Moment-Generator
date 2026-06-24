@@ -215,7 +215,8 @@ QString MomentEngine::definitionsLatex(int order)
         "\\begin{aligned}\n"
         "M_{%1} &= \\frac{1}{n}\\sum_{i=1}^{n}(X_i-\\bar X)^{%1},\\\\[0.35em]\n"
         "v_r &= \\mathbb{E}[(X-\\mu)^r],\\qquad v_1=0,\\\\[0.35em]\n"
-        "\\widehat v_r &\\text{ denotes the recursively corrected estimator of } v_r.\n"
+        "\\widehat v_r &\\text{ denotes the recursively corrected estimator of } v_r,\\\\[0.35em]\n"
+        "\\mathbb{S},\\mathbb{K},\\mathbb{EK} &\\text{ denote skewness, kurtosis, and excess kurtosis.}\n"
         "\\end{aligned}")
         .arg(order);
 }
@@ -299,11 +300,11 @@ QString MomentEngine::applicationsLatex(int order)
     if (order == 3) {
         return QStringLiteral(
             "\\begin{aligned}\n"
-            "\\gamma_1 &= \\frac{v_3}{v_2^{3/2}},\\qquad "
-            "g_1=\\frac{M_3}{M_2^{3/2}},\\\\[0.45em]\n"
+            "\\mathbb{S}(X) &= \\frac{v_3}{v_2^{3/2}},\\qquad "
+            "\\mathbb{S}_{M}(X)=\\frac{M_3}{M_2^{3/2}},\\\\[0.45em]\n"
             "\\widehat v_2 &= \\frac{n}{n-1}M_2,\\qquad "
             "\\widehat v_3=\\frac{n^2}{(n-1)(n-2)}M_3,\\\\[0.45em]\n"
-            "\\widehat\\gamma_1^{\\mathrm{plug\\text{-}in}} "
+            "\\widehat{\\mathbb{S}}_{\\mathrm{plug\\text{-}in}}(X) "
             "&= \\frac{\\widehat v_3}{\\widehat v_2^{3/2}}\\\\[0.35em]\n"
             "&= \\frac{\\sqrt{n(n-1)}}{n-2}\\,"
             "\\frac{M_3}{M_2^{3/2}},\\qquad n>2.\n"
@@ -313,22 +314,23 @@ QString MomentEngine::applicationsLatex(int order)
     if (order == 4) {
         return QStringLiteral(
             "\\begin{aligned}\n"
-            "\\beta_2 &= \\frac{v_4}{v_2^2},\\qquad "
-            "\\gamma_2=\\beta_2-3=\\frac{v_4-3v_2^2}{v_2^2},\\\\[0.35em]\n"
-            "b_2 &= \\frac{M_4}{M_2^2},\\qquad g_2=b_2-3,\\\\[0.55em]\n"
+            "\\mathbb{K}(X) &= \\frac{v_4}{v_2^2},\\qquad "
+            "\\mathbb{EK}(X)=\\mathbb{K}(X)-3=\\frac{v_4-3v_2^2}{v_2^2},\\\\[0.35em]\n"
+            "\\mathbb{K}_{M}(X) &= \\frac{M_4}{M_2^2},\\qquad "
+            "\\mathbb{EK}_{M}(X)=\\mathbb{K}_{M}(X)-3,\\\\[0.55em]\n"
             "\\widehat v_2 &= \\frac{n}{n-1}M_2,\\\\[0.35em]\n"
             "\\widehat v_4 &= \\frac{n(n^2-2n+3)}{(n-1)(n-2)(n-3)}M_4"
             "-\\frac{3n(2n-3)}{(n-1)(n-2)(n-3)}M_2^2,\\\\[0.55em]\n"
-            "\\widehat\\beta_2^{\\mathrm{plug\\text{-}in}} "
+            "\\widehat{\\mathbb{K}}_{\\mathrm{plug\\text{-}in}}(X) "
             "&= \\frac{\\widehat v_4}{\\widehat v_2^2}\\\\[0.35em]\n"
             "&= \\frac{(n-1)(n^2-2n+3)}{n(n-2)(n-3)}\\,\\frac{M_4}{M_2^2}"
             "-\\frac{3(n-1)(2n-3)}{n(n-2)(n-3)},\\\\[0.55em]\n"
-            "\\widehat\\gamma_2^{\\mathrm{plug\\text{-}in}} "
-            "&= \\widehat\\beta_2^{\\mathrm{plug\\text{-}in}}-3\\\\[0.35em]\n"
+            "\\widehat{\\mathbb{EK}}_{\\mathrm{plug\\text{-}in}}(X) "
+            "&= \\widehat{\\mathbb{K}}_{\\mathrm{plug\\text{-}in}}(X)-3\\\\[0.35em]\n"
             "&= \\frac{(n-1)(n^2-2n+3)}{n(n-2)(n-3)}\\,\\frac{M_4}{M_2^2}"
             "-\\frac{3(n^3-3n^2+n+3)}{n(n-2)(n-3)},\\qquad n>3,\\\\[0.55em]\n"
             "\\widehat\\kappa_4 &= \\frac{n^2\\left[(n+1)M_4-3(n-1)M_2^2\\right]}{(n-1)(n-2)(n-3)},\\\\[0.35em]\n"
-            "\\widehat\\gamma_2^{\\kappa\\mathrm{\\text{-}plug\\text{-}in}} "
+            "\\widehat{\\mathbb{EK}}_{\\kappa,\\mathrm{plug\\text{-}in}}(X) "
             "&= \\frac{\\widehat\\kappa_4}{\\widehat v_2^2}"
             "=\\frac{n-1}{(n-2)(n-3)}\\left[(n+1)\\frac{M_4}{M_2^2}-3(n-1)\\right].\n"
             "\\end{aligned}");

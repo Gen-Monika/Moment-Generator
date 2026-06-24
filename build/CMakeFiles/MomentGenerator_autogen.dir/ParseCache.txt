@@ -223,6 +223,6 @@ D:/Qt Projects/Moment_Generator/src/MainWindow.h
  mdp:D:/Visual Studio/VC/Tools/MSVC/14.44.35207/include/yvals.h
  mdp:D:/Visual Studio/VC/Tools/MSVC/14.44.35207/include/yvals_core.h
 D:/Qt Projects/Moment_Generator/src/MomentEngine.h
-D:/Qt Projects/Moment_Generator/src/MainWindow.cpp
 D:/Qt Projects/Moment_Generator/src/main.cpp
+D:/Qt Projects/Moment_Generator/src/MainWindow.cpp
 D:/Qt Projects/Moment_Generator/src/MomentEngine.cpp
