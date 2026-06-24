@@ -6,6 +6,12 @@
 
 #include <optional>
 
+struct FormulaSection
+{
+    QString title;
+    QString latex;
+};
+
 struct Partition
 {
     QVector<int> parts;
@@ -32,6 +38,7 @@ class MomentEngine
 public:
     static QVector<Partition> partitionsWithoutOnes(int order);
     static QVector<MomentTerm> terms(int order, std::optional<int> sampleSize);
+    static QVector<FormulaSection> formulaSections(int order, const QVector<MomentTerm>& terms, std::optional<int> sampleSize);
     static QString fullLatex(int order, const QVector<MomentTerm>& terms, std::optional<int> sampleSize);
 
 private:
@@ -41,6 +48,13 @@ private:
     static QString coefficientLatex(int order, const Partition& partition);
     static QString bracketLatex(int order, const QMap<int, int>& multiplicities, int blockCount);
     static QString fallingFactorLatex(int start, int count);
+    static QString definitionsLatex(int order);
+    static QString forwardLatex(int order, const QVector<MomentTerm>& terms, std::optional<int> sampleSize);
+    static QString inverseLatex(int order, const QVector<MomentTerm>& terms);
+    static QString applicationsLatex(int order);
+    static QString estimatorProductLatex(const Partition& partition);
+    static QString joinTerms(const QStringList& terms);
+    static const MomentTerm* leadingTerm(const QVector<MomentTerm>& terms, int order);
     static long double numericCoefficient(int order, const Partition& partition, int sampleSize);
     static QString formatNumber(long double value);
 };

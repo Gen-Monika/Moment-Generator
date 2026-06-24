@@ -1,17 +1,24 @@
 ﻿#include "MainWindow.h"
 
+#include <QAbstractItemView>
 #include <QApplication>
 #include <QCheckBox>
 #include <QClipboard>
+#include <QGuiApplication>
 #include <QHeaderView>
 #include <QLabel>
 #include <QPlainTextEdit>
 #include <QPushButton>
+#include <QScreen>
 #include <QSpinBox>
 #include <QSplitter>
 #include <QTableWidget>
+#include <QTableWidgetItem>
+#include <QUrl>
 #include <QVBoxLayout>
 #include <QWebEngineView>
+
+#include <algorithm>
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
@@ -24,11 +31,17 @@ MainWindow::MainWindow(QWidget* parent)
 void MainWindow::buildUi()
 {
     setWindowTitle(QStringLiteral("Moment Generator"));
-    resize(1280, 820);
+    setMinimumSize(900, 600);
+
+    const QScreen* screen = QGuiApplication::primaryScreen();
+    const QRect available = screen ? screen->availableGeometry() : QRect(0, 0, 1280, 800);
+    const int defaultWidth = std::max(900, std::min(1180, available.width() - 80));
+    const int defaultHeight = std::max(620, std::min(720, available.height() - 90));
+    resize(defaultWidth, defaultHeight);
 
     auto* central = new QWidget(this);
     auto* rootLayout = new QVBoxLayout(central);
-    rootLayout->setContentsMargins(12, 12, 12, 12);
+    rootLayout->setContentsMargins(10, 10, 10, 8);
 
     auto* splitter = new QSplitter(Qt::Horizontal, central);
 
@@ -39,6 +52,7 @@ void MainWindow::buildUi()
     auto* controls = new QWidget(leftPanel);
     auto* controlsLayout = new QVBoxLayout(controls);
     controlsLayout->setContentsMargins(0, 0, 0, 0);
+    controlsLayout->setSpacing(6);
 
     auto* orderLabel = new QLabel(QStringLiteral("Moment order k"), controls);
     m_orderSpin = new QSpinBox(controls);
@@ -85,14 +99,15 @@ void MainWindow::buildUi()
     auto* rightPanel = new QWidget(splitter);
     auto* rightLayout = new QVBoxLayout(rightPanel);
     rightLayout->setContentsMargins(8, 0, 0, 0);
+    rightLayout->setSpacing(6);
 
     m_preview = new QWebEngineView(rightPanel);
     m_latexEdit = new QPlainTextEdit(rightPanel);
     m_latexEdit->setPlaceholderText(QStringLiteral("Generated LaTeX will appear here."));
-    m_latexEdit->setMinimumHeight(180);
+    m_latexEdit->setMinimumHeight(130);
 
     rightLayout->addWidget(new QLabel(QStringLiteral("KaTeX preview"), rightPanel));
-    rightLayout->addWidget(m_preview, 2);
+    rightLayout->addWidget(m_preview, 3);
     rightLayout->addWidget(new QLabel(QStringLiteral("LaTeX source"), rightPanel));
     rightLayout->addWidget(m_latexEdit, 1);
 
@@ -100,6 +115,7 @@ void MainWindow::buildUi()
     splitter->addWidget(rightPanel);
     splitter->setStretchFactor(0, 0);
     splitter->setStretchFactor(1, 1);
+    splitter->setSizes({310, 860});
 
     m_statusLabel = new QLabel(central);
 
@@ -125,11 +141,12 @@ void MainWindow::regenerate()
         : std::optional<int>(m_sampleSizeSpin->value());
 
     const QVector<MomentTerm> terms = MomentEngine::terms(order, sampleSize);
+    const QVector<FormulaSection> sections = MomentEngine::formulaSections(order, terms, sampleSize);
     const QString latex = MomentEngine::fullLatex(order, terms, sampleSize);
 
     populateTable(terms);
     m_latexEdit->setPlainText(latex);
-    m_preview->setHtml(renderHtml(latex), QUrl(QStringLiteral("https://cdn.jsdelivr.net/")));
+    m_preview->setHtml(renderHtml(sections), QUrl(QStringLiteral("https://cdn.jsdelivr.net/")));
     m_statusLabel->setText(QStringLiteral("Generated %1 partition term(s) for k=%2.").arg(terms.size()).arg(order));
 }
 
@@ -153,9 +170,17 @@ void MainWindow::populateTable(const QVector<MomentTerm>& terms)
     }
 }
 
-QString MainWindow::renderHtml(const QString& latex) const
+QString MainWindow::renderHtml(const QVector<FormulaSection>& sections) const
 {
-    const QString escapedLatex = latex.toHtmlEscaped();
+    QString cards;
+    for (const FormulaSection& section : sections) {
+        cards += QStringLiteral("<section class=\"card\"><h2>")
+               + section.title.toHtmlEscaped()
+               + QStringLiteral("</h2><div class=\"formula\">\\[")
+               + section.latex.toHtmlEscaped()
+               + QStringLiteral("\\]</div></section>\n");
+    }
+
     return QString::fromUtf8(R"HTML(<!doctype html>
 <html>
 <head>
@@ -167,27 +192,40 @@ QString MainWindow::renderHtml(const QString& latex) const
   <style>
     body {
       margin: 0;
-      padding: 24px;
+      padding: 18px;
       font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
       color: #202124;
       background: #ffffff;
     }
+    .card {
+      margin-bottom: 14px;
+      border: 1px solid #d8dee4;
+      background: #ffffff;
+    }
+    h2 {
+      margin: 0;
+      padding: 8px 12px;
+      font-size: 15px;
+      font-weight: 650;
+      color: #1f4e79;
+      background: #f3f6fa;
+      border-bottom: 1px solid #d8dee4;
+    }
     .formula {
       overflow-x: auto;
-      padding: 18px;
-      border: 1px solid #d8dee4;
-      background: #f8f8f8;
+      padding: 14px 16px;
+      background: #fbfbfb;
     }
     .hint {
-      margin-top: 14px;
+      margin-top: 12px;
       color: #666;
       font-size: 13px;
     }
   </style>
 </head>
 <body>
-  <div class="formula">\[%1\]</div>
-  <div class="hint">KaTeX is loaded from jsDelivr in this first scaffold. Offline assets can be vendored later.</div>
+  %1
+  <div class="hint">KaTeX is loaded from jsDelivr in this scaffold. Offline assets can be vendored later.</div>
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       renderMathInElement(document.body, {
@@ -201,7 +239,5 @@ QString MainWindow::renderHtml(const QString& latex) const
     });
   </script>
 </body>
-</html>)HTML").arg(escapedLatex);
+</html>)HTML").arg(cards);
 }
-
-

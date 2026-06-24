@@ -27,7 +27,7 @@ private:
     void regenerate();
     void copyLatexToClipboard();
     void populateTable(const QVector<MomentTerm>& terms);
-    QString renderHtml(const QString& latex) const;
+    QString renderHtml(const QVector<FormulaSection>& sections) const;
 
     QSpinBox* m_orderSpin = nullptr;
     QSpinBox* m_sampleSizeSpin = nullptr;
