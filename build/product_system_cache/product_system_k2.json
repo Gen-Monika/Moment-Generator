@@ -1,0 +1,1 @@
+{"version":1,"order":2,"partitions":[[2]],"dimension":1,"max_factors":1,"entry_count":1,"term_count":2,"term_form":"coeff * falling(n, falling) * n^n_power","elapsed_ms":0,"entries":[{"row":0,"col":0,"terms":[{"coeff":"-1","n_power":-2,"falling":1},{"coeff":"1","n_power":-1,"falling":1}]}]}

@@ -7,6 +7,7 @@
 #include <QGuiApplication>
 #include <QHeaderView>
 #include <QLabel>
+#include <QMessageBox>
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QScreen>
@@ -56,7 +57,7 @@ void MainWindow::buildUi()
 
     auto* orderLabel = new QLabel(QStringLiteral("Moment order k"), controls);
     m_orderSpin = new QSpinBox(controls);
-    m_orderSpin->setRange(2, 20);
+    m_orderSpin->setRange(2, 25);
     m_orderSpin->setValue(4);
 
     auto* sampleLabel = new QLabel(QStringLiteral("Sample size n"), controls);
@@ -136,6 +137,40 @@ void MainWindow::connectSignals()
 void MainWindow::regenerate()
 {
     const int order = m_orderSpin->value();
+
+    if (!MomentEngine::productSystemCacheExists(order)) {
+        bool shouldGenerate = true;
+        if (order > 20 && !m_warnedOnDemandOrders.contains(order)) {
+            const QMessageBox::StandardButton answer = QMessageBox::warning(
+                this,
+                QStringLiteral("Generate high-order cache"),
+                QStringLiteral(
+                    "Order k=%1 is not pre-cached. Moment Generator supports orders up to 25, "
+                    "but k>20 may take longer the first time. The exact product-system cache "
+                    "will be written after the calculation finishes. Continue?").arg(order),
+                QMessageBox::Ok | QMessageBox::Cancel,
+                QMessageBox::Ok);
+            m_warnedOnDemandOrders.insert(order);
+            shouldGenerate = (answer == QMessageBox::Ok);
+        }
+
+        if (shouldGenerate) {
+            QApplication::setOverrideCursor(Qt::WaitCursor);
+            m_statusLabel->setText(QStringLiteral("Generating product-system cache for k=%1...").arg(order));
+            QString errorMessage;
+            const bool generated = MomentEngine::ensureProductSystemCache(order, &errorMessage);
+            QApplication::restoreOverrideCursor();
+            if (!generated) {
+                QMessageBox::warning(
+                    this,
+                    QStringLiteral("Cache generation failed"),
+                    errorMessage.isEmpty()
+                        ? QStringLiteral("The product-system cache could not be generated.")
+                        : errorMessage);
+            }
+        }
+    }
+
     const std::optional<int> sampleSize = m_symbolicNCheck->isChecked()
         ? std::nullopt
         : std::optional<int>(m_sampleSizeSpin->value());
@@ -143,11 +178,21 @@ void MainWindow::regenerate()
     const QVector<MomentTerm> terms = MomentEngine::terms(order, sampleSize);
     const QVector<FormulaSection> sections = MomentEngine::formulaSections(order, terms, sampleSize);
     const QString latex = MomentEngine::fullLatex(order, terms, sampleSize);
+    const ProductSystemInfo productInfo = MomentEngine::productSystemInfo(order);
 
     populateTable(terms);
     m_latexEdit->setPlainText(latex);
     m_preview->setHtml(renderHtml(sections), QUrl(QStringLiteral("https://cdn.jsdelivr.net/")));
-    m_statusLabel->setText(QStringLiteral("Generated %1 partition term(s) for k=%2.").arg(terms.size()).arg(order));
+
+    QString status = QStringLiteral("Generated %1 partition term(s) for k=%2.").arg(terms.size()).arg(order);
+    if (productInfo.available) {
+        status += QStringLiteral(" Product system: %1x%1, %2 cached terms.")
+                      .arg(productInfo.dimension)
+                      .arg(productInfo.termCount);
+    } else {
+        status += QStringLiteral(" Product system cache unavailable.");
+    }
+    m_statusLabel->setText(status);
 }
 
 void MainWindow::copyLatexToClipboard()
@@ -241,3 +286,4 @@ QString MainWindow::renderHtml(const QVector<FormulaSection>& sections) const
 </body>
 </html>)HTML").arg(cards);
 }
+

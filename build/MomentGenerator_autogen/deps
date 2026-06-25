@@ -25,6 +25,7 @@ MomentGenerator_autogen/timestamp: \
 	D:/Qt\ Projects/Moment_Generator/src/MomentEngine.h \
 	D:/Qt\ Projects/Moment_Generator/src/main.cpp \
 	D:/Qt/6.9.3/msvc2022_64/include/QtCore/QMap \
+	D:/Qt/6.9.3/msvc2022_64/include/QtCore/QSet \
 	D:/Qt/6.9.3/msvc2022_64/include/QtCore/QString \
 	D:/Qt/6.9.3/msvc2022_64/include/QtCore/QVector \
 	D:/Qt/6.9.3/msvc2022_64/include/QtCore/q17memory.h \

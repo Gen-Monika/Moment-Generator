@@ -1,18 +1,52 @@
 # ninja log v6
-106	843	8039362071221087	.qt/qml_imports/MomentGenerator_build.cmake	b3abe86b33b4d02a
-116	701	8039859535591074	MomentGenerator_autogen/mocs_compilation.cpp	a05577f2e2ef369e
-106	843	8039362071221087	D:/Qt Projects/Moment_Generator/build/.qt/qml_imports/MomentGenerator_build.cmake	b3abe86b33b4d02a
-704	4598	8039859541461207	CMakeFiles/MomentGenerator.dir/src/MomentEngine.cpp.obj	682b0298b0468758
-116	701	8039859535591074	MomentGenerator_autogen/timestamp	a05577f2e2ef369e
-116	701	8039859535591074	D:/Qt Projects/Moment_Generator/build/MomentGenerator_autogen/timestamp	a05577f2e2ef369e
-116	701	8039859535591074	D:/Qt Projects/Moment_Generator/build/MomentGenerator_autogen/mocs_compilation.cpp	a05577f2e2ef369e
-1929	6699	8039848386519586	CMakeFiles/MomentGenerator.dir/MomentGenerator_autogen/mocs_compilation.cpp.obj	2cb80c1fc5a9d8e6
-4598	5023	8039859580400422	MomentGenerator.exe	e3fa350e17910778
-1941	6788	8039848386639630	CMakeFiles/MomentGenerator.dir/src/main.cpp.obj	a443b3489831aef0
-1957	9106	8039848386799607	CMakeFiles/MomentGenerator.dir/src/MainWindow.cpp.obj	51b564a53895d4ad
-120	696	8040233795719166	MomentGenerator_autogen/timestamp	a05577f2e2ef369e
 120	696	8040233795719166	MomentGenerator_autogen/mocs_compilation.cpp	a05577f2e2ef369e
+106	843	8039362071221087	.qt/qml_imports/MomentGenerator_build.cmake	b3abe86b33b4d02a
+700	4454	8040233801525667	CMakeFiles/MomentGenerator.dir/src/MomentEngine.cpp.obj	682b0298b0468758
+106	843	8039362071221087	D:/Qt Projects/Moment_Generator/build/.qt/qml_imports/MomentGenerator_build.cmake	b3abe86b33b4d02a
+120	696	8040233795719166	MomentGenerator_autogen/timestamp	a05577f2e2ef369e
 120	696	8040233795719166	D:/Qt Projects/Moment_Generator/build/MomentGenerator_autogen/timestamp	a05577f2e2ef369e
 120	696	8040233795719166	D:/Qt Projects/Moment_Generator/build/MomentGenerator_autogen/mocs_compilation.cpp	a05577f2e2ef369e
-700	4454	8040233801525667	CMakeFiles/MomentGenerator.dir/src/MomentEngine.cpp.obj	682b0298b0468758
 4455	5022	8040233839078538	MomentGenerator.exe	e3fa350e17910778
+1929	6699	8039848386519586	CMakeFiles/MomentGenerator.dir/MomentGenerator_autogen/mocs_compilation.cpp.obj	2cb80c1fc5a9d8e6
+1941	6788	8039848386639630	CMakeFiles/MomentGenerator.dir/src/main.cpp.obj	a443b3489831aef0
+1957	9106	8039848386799607	CMakeFiles/MomentGenerator.dir/src/MainWindow.cpp.obj	51b564a53895d4ad
+116	1845	8040300163306929	MomentGenerator_autogen/timestamp	a05577f2e2ef369e
+116	1845	8040300163306929	MomentGenerator_autogen/mocs_compilation.cpp	a05577f2e2ef369e
+116	1845	8040300163306929	D:/Qt Projects/Moment_Generator/build/MomentGenerator_autogen/timestamp	a05577f2e2ef369e
+116	1845	8040300163306929	D:/Qt Projects/Moment_Generator/build/MomentGenerator_autogen/mocs_compilation.cpp	a05577f2e2ef369e
+1849	5669	8040300166156575	CMakeFiles/MomentGenerator.dir/MomentGenerator_autogen/mocs_compilation.cpp.obj	2cb80c1fc5a9d8e6
+1906	5716	8040300166736587	CMakeFiles/MomentGenerator.dir/src/main.cpp.obj	a443b3489831aef0
+1920	7640	8040300166866577	CMakeFiles/MomentGenerator.dir/src/MainWindow.cpp.obj	51b564a53895d4ad
+126	702	8040322760647104	MomentGenerator_autogen/timestamp	a05577f2e2ef369e
+126	702	8040322760647104	MomentGenerator_autogen/mocs_compilation.cpp	a05577f2e2ef369e
+126	702	8040322760647104	D:/Qt Projects/Moment_Generator/build/MomentGenerator_autogen/timestamp	a05577f2e2ef369e
+126	702	8040322760647104	D:/Qt Projects/Moment_Generator/build/MomentGenerator_autogen/mocs_compilation.cpp	a05577f2e2ef369e
+704	6823	8040322766427130	CMakeFiles/MomentGenerator.dir/src/MomentEngine.cpp.obj	682b0298b0468758
+6824	7945	8040322827639318	MomentGenerator.exe	842f681aa9ed7be3
+133	747	8040330860424487	MomentGenerator_autogen/timestamp	a05577f2e2ef369e
+133	747	8040330860424487	MomentGenerator_autogen/mocs_compilation.cpp	a05577f2e2ef369e
+133	747	8040330860424487	D:/Qt Projects/Moment_Generator/build/MomentGenerator_autogen/timestamp	a05577f2e2ef369e
+133	747	8040330860424487	D:/Qt Projects/Moment_Generator/build/MomentGenerator_autogen/mocs_compilation.cpp	a05577f2e2ef369e
+750	7156	8040330866578617	CMakeFiles/MomentGenerator.dir/src/MomentEngine.cpp.obj	682b0298b0468758
+7158	8740	8040330930658431	MomentGenerator.exe	842f681aa9ed7be3
+121	723	8040332419554814	MomentGenerator_autogen/timestamp	a05577f2e2ef369e
+121	723	8040332419554814	MomentGenerator_autogen/mocs_compilation.cpp	a05577f2e2ef369e
+121	723	8040332419554814	D:/Qt Projects/Moment_Generator/build/MomentGenerator_autogen/timestamp	a05577f2e2ef369e
+121	723	8040332419554814	D:/Qt Projects/Moment_Generator/build/MomentGenerator_autogen/mocs_compilation.cpp	a05577f2e2ef369e
+728	7364	8040332425604253	CMakeFiles/MomentGenerator.dir/src/MomentEngine.cpp.obj	682b0298b0468758
+7364	8577	8040332491972636	MomentGenerator.exe	842f681aa9ed7be3
+115	1531	8040356584882859	MomentGenerator_autogen/timestamp	a05577f2e2ef369e
+115	1531	8040356584882859	MomentGenerator_autogen/mocs_compilation.cpp	a05577f2e2ef369e
+115	1531	8040356584882859	D:/Qt Projects/Moment_Generator/build/MomentGenerator_autogen/timestamp	a05577f2e2ef369e
+115	1531	8040356584882859	D:/Qt Projects/Moment_Generator/build/MomentGenerator_autogen/mocs_compilation.cpp	a05577f2e2ef369e
+1534	5625	8040356587739319	CMakeFiles/MomentGenerator.dir/MomentGenerator_autogen/mocs_compilation.cpp.obj	2cb80c1fc5a9d8e6
+1545	5671	8040356587859330	CMakeFiles/MomentGenerator.dir/src/main.cpp.obj	a443b3489831aef0
+1559	7773	8040356588001528	CMakeFiles/MomentGenerator.dir/src/MainWindow.cpp.obj	51b564a53895d4ad
+1569	7839	8040356588101583	CMakeFiles/MomentGenerator.dir/src/MomentEngine.cpp.obj	682b0298b0468758
+7839	8744	8040356650796341	MomentGenerator.exe	842f681aa9ed7be3
+313	959	8040795783157744	MomentGenerator_autogen/timestamp	a05577f2e2ef369e
+313	959	8040795783157744	MomentGenerator_autogen/mocs_compilation.cpp	a05577f2e2ef369e
+313	959	8040795783157744	D:/Qt Projects/Moment_Generator/build/MomentGenerator_autogen/timestamp	a05577f2e2ef369e
+313	959	8040795783157744	D:/Qt Projects/Moment_Generator/build/MomentGenerator_autogen/mocs_compilation.cpp	a05577f2e2ef369e
+963	10742	8040795789654741	CMakeFiles/MomentGenerator.dir/src/MomentEngine.cpp.obj	682b0298b0468758
+10742	14878	8040795887448389	MomentGenerator.exe	842f681aa9ed7be3

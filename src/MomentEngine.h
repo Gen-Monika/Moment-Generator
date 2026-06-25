@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <QMap>
 #include <QString>
@@ -22,6 +22,19 @@ struct Partition
     QString productLatex() const;
 };
 
+struct ProductSystemInfo
+{
+    int order = 0;
+    int dimension = 0;
+    int maxFactors = 0;
+    int entryCount = 0;
+    int termCount = 0;
+    int elapsedMs = 0;
+    bool available = false;
+    bool rendersFullMatrix = false;
+    QString cachePath;
+    QString message;
+};
 struct MomentTerm
 {
     Partition partition;
@@ -40,6 +53,9 @@ public:
     static QVector<MomentTerm> terms(int order, std::optional<int> sampleSize);
     static QVector<FormulaSection> formulaSections(int order, const QVector<MomentTerm>& terms, std::optional<int> sampleSize);
     static QString fullLatex(int order, const QVector<MomentTerm>& terms, std::optional<int> sampleSize);
+    static bool productSystemCacheExists(int order);
+    static bool ensureProductSystemCache(int order, QString* errorMessage = nullptr);
+    static ProductSystemInfo productSystemInfo(int order);
 
 private:
     static void generatePartitions(int remaining, int maxPart, QVector<int>& current, QVector<Partition>& out);
@@ -51,10 +67,20 @@ private:
     static QString definitionsLatex(int order);
     static QString forwardLatex(int order, const QVector<MomentTerm>& terms, std::optional<int> sampleSize);
     static QString inverseLatex(int order, const QVector<MomentTerm>& terms);
+    static QString productSystemLatex(int order);
+    static QString productMatrixLatex(int order);
     static QString applicationsLatex(int order);
     static QString estimatorProductLatex(const Partition& partition);
     static QString joinTerms(const QStringList& terms);
     static const MomentTerm* leadingTerm(const QVector<MomentTerm>& terms, int order);
     static long double numericCoefficient(int order, const Partition& partition, int sampleSize);
     static QString formatNumber(long double value);
+    static QString productSystemCachePath(int order);
+    static QString bundledProductSystemCachePath(int order);
+    static QString writableProductSystemCachePath(int order);
+    static QString writableProductSystemCacheDir();
+    static QString productSystemGeneratorPath();
 };
+
+
+

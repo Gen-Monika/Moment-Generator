@@ -19,6 +19,7 @@ D:/Qt Projects/Moment_Generator/src/MainWindow.h
  mdp:D:/Qt Projects/Moment_Generator/src/MainWindow.h
  mdp:D:/Qt Projects/Moment_Generator/src/MomentEngine.h
  mdp:D:/Qt/6.9.3/msvc2022_64/include/QtCore/QMap
+ mdp:D:/Qt/6.9.3/msvc2022_64/include/QtCore/QSet
  mdp:D:/Qt/6.9.3/msvc2022_64/include/QtCore/QString
  mdp:D:/Qt/6.9.3/msvc2022_64/include/QtCore/QVector
  mdp:D:/Qt/6.9.3/msvc2022_64/include/QtCore/q17memory.h

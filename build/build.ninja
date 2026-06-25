@@ -98,7 +98,7 @@ build MomentGenerator.exe: CXX_EXECUTABLE_LINKER__MomentGenerator_Release CMakeF
   LINK_FLAGS = /machine:x64 /INCREMENTAL:NO /subsystem:windows
   LINK_LIBRARIES = D:\Qt\6.9.3\msvc2022_64\lib\Qt6WebEngineWidgets.lib  D:\Qt\6.9.3\msvc2022_64\lib\Qt6WebEngineCore.lib  D:\Qt\6.9.3\msvc2022_64\lib\Qt6WebChannel.lib  D:\Qt\6.9.3\msvc2022_64\lib\Qt6Positioning.lib  D:\Qt\6.9.3\msvc2022_64\lib\Qt6PrintSupport.lib  comdlg32.lib  winspool.lib  D:\Qt\6.9.3\msvc2022_64\lib\Qt6Widgets.lib  D:\Qt\6.9.3\msvc2022_64\lib\Qt6Quick.lib  D:\Qt\6.9.3\msvc2022_64\lib\Qt6QmlMeta.lib  D:\Qt\6.9.3\msvc2022_64\lib\Qt6QmlWorkerScript.lib  D:\Qt\6.9.3\msvc2022_64\lib\Qt6QmlModels.lib  D:\Qt\6.9.3\msvc2022_64\lib\Qt6OpenGL.lib  D:\Qt\6.9.3\msvc2022_64\lib\Qt6Gui.lib  d3d11.lib  dxgi.lib  dxguid.lib  d3d12.lib  user32.lib  D:\Qt\6.9.3\msvc2022_64\lib\Qt6Qml.lib  D:\Qt\6.9.3\msvc2022_64\lib\Qt6Network.lib  ws2_32.lib  D:\Qt\6.9.3\msvc2022_64\lib\Qt6Core.lib  mpr.lib  userenv.lib  D:\Qt\6.9.3\msvc2022_64\lib\Qt6EntryPoint.lib  shell32.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib
   OBJECT_DIR = CMakeFiles\MomentGenerator.dir
-  POST_BUILD = cd .
+  POST_BUILD = C:\Windows\system32\cmd.exe /C "cd /D "D:\Qt Projects\Moment_Generator\build" && D:\Qt\Tools\CMake_64\bin\cmake.exe -E copy_directory "D:/Qt Projects/Moment_Generator/cache/product_systems" "D:/Qt Projects/Moment_Generator/build/product_system_cache" && D:\Qt\Tools\CMake_64\bin\cmake.exe -E copy_directory "D:/Qt Projects/Moment_Generator/tools" "D:/Qt Projects/Moment_Generator/build/tools""
   PRE_LINK = cd .
   TARGET_COMPILE_PDB = CMakeFiles\MomentGenerator.dir\
   TARGET_FILE = MomentGenerator.exe

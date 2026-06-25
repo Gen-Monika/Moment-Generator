@@ -1,5 +1,13 @@
-#include "MomentEngine.h"
+﻿#include "MomentEngine.h"
 
+#include <QCoreApplication>
+#include <QDir>
+#include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QProcess>
+#include <QStandardPaths>
 #include <QStringList>
 #include <QtMath>
 
@@ -83,6 +91,13 @@ QVector<FormulaSection> MomentEngine::formulaSections(int order, const QVector<M
     QVector<FormulaSection> sections;
     sections << FormulaSection{QStringLiteral("Definitions"), definitionsLatex(order)};
     sections << FormulaSection{QStringLiteral("Forward relation"), forwardLatex(order, terms, sampleSize)};
+    sections << FormulaSection{QStringLiteral("Product moment system"), productSystemLatex(order)};
+
+    const QString productMatrix = productMatrixLatex(order);
+    if (!productMatrix.isEmpty()) {
+        sections << FormulaSection{QStringLiteral("Product coefficient matrix"), productMatrix};
+    }
+
     sections << FormulaSection{QStringLiteral("Inverse estimator"), inverseLatex(order, terms)};
 
     const QString applications = applicationsLatex(order);
@@ -295,6 +310,410 @@ QString MomentEngine::inverseLatex(int order, const QVector<MomentTerm>& terms)
         .arg(estimatorNumerator);
 }
 
+namespace
+{
+QString intPowerLatex(const QString& base, int exponent)
+{
+    if (exponent == 1) {
+        return base;
+    }
+    return QStringLiteral("%1^{%2}").arg(base).arg(exponent);
+}
+
+QString productFromJsonParts(const QJsonArray& parts, const QString& symbol)
+{
+    QMap<int, int> counts;
+    for (const QJsonValue& value : parts) {
+        counts[value.toInt()] += 1;
+    }
+
+    QStringList factors;
+    for (auto it = counts.cbegin(); it != counts.cend(); ++it) {
+        const QString base = QStringLiteral("%1_{%2}").arg(symbol).arg(it.key());
+        factors << intPowerLatex(base, it.value());
+    }
+    std::reverse(factors.begin(), factors.end());
+    return factors.join(QStringLiteral("\\,"));
+}
+
+QString vectorFromPartitions(const QJsonArray& partitions, const QString& symbol, int maxItems)
+{
+    QStringList items;
+    const int dimension = partitions.size();
+    const int headCount = dimension <= maxItems ? dimension : std::min(5, dimension);
+
+    for (int i = 0; i < headCount; ++i) {
+        items << productFromJsonParts(partitions.at(i).toArray(), symbol);
+    }
+
+    if (dimension > maxItems) {
+        items << QStringLiteral("\\vdots");
+        items << productFromJsonParts(partitions.last().toArray(), symbol);
+    }
+
+    return QStringLiteral("\\begin{pmatrix}%1\\end{pmatrix}")
+        .arg(items.join(QStringLiteral("\\\\\n")));
+}
+
+QString absIntegerString(QString value)
+{
+    if (value.startsWith(QLatin1Char('-'))) {
+        value.remove(0, 1);
+    }
+    return value;
+}
+
+QString coefficientAtomLatex(const QJsonObject& term)
+{
+    const QString coeffText = term.value(QStringLiteral("coeff")).toString();
+    const bool negative = coeffText.startsWith(QLatin1Char('-'));
+    const QString absCoeff = absIntegerString(coeffText);
+    const int nPower = term.value(QStringLiteral("n_power")).toInt();
+    const int falling = term.value(QStringLiteral("falling")).toInt();
+
+    QStringList factors;
+    if (absCoeff != QStringLiteral("1") || (falling == 0 && nPower == 0)) {
+        factors << absCoeff;
+    }
+    if (falling > 0) {
+        factors << QStringLiteral("(n)_{%1}").arg(falling);
+    }
+    if (nPower > 0) {
+        factors << (nPower == 1 ? QStringLiteral("n") : QStringLiteral("n^{%1}").arg(nPower));
+    }
+
+    QString body = factors.isEmpty() ? QStringLiteral("1") : factors.join(QStringLiteral("\\,"));
+    if (nPower < 0) {
+        const int denominatorPower = -nPower;
+        const QString denominator = denominatorPower == 1
+            ? QStringLiteral("n")
+            : QStringLiteral("n^{%1}").arg(denominatorPower);
+        body = QStringLiteral("\\frac{%1}{%2}").arg(body, denominator);
+    }
+
+    return negative ? QStringLiteral("-") + body : body;
+}
+
+QString joinLatexTerms(const QStringList& terms)
+{
+    QString result;
+    for (QString term : terms) {
+        term = term.trimmed();
+        if (term.isEmpty()) {
+            continue;
+        }
+
+        if (result.isEmpty()) {
+            result = term;
+        } else if (term.startsWith(QLatin1Char('-'))) {
+            result += QStringLiteral(" - ") + term.mid(1).trimmed();
+        } else {
+            result += QStringLiteral(" + ") + term;
+        }
+    }
+    return result;
+}
+
+QString entryLatex(const QJsonArray& terms)
+{
+    QStringList atoms;
+    atoms.reserve(terms.size());
+    for (const QJsonValue& value : terms) {
+        atoms << coefficientAtomLatex(value.toObject());
+    }
+    return joinLatexTerms(atoms);
+}
+
+QString compactPathForLatex(QString path)
+{
+    path.replace(QLatin1Char('\\'), QLatin1Char('/'));
+    if (path.size() > 72) {
+        path = QStringLiteral("\\ldots/") + path.right(68);
+    }
+    path.replace(QLatin1Char('_'), QStringLiteral("\\_"));
+    path.replace(QLatin1Char('%'), QStringLiteral("\\%"));
+    return path;
+}
+}
+
+bool MomentEngine::productSystemCacheExists(int order)
+{
+    return QFile::exists(productSystemCachePath(order));
+}
+
+bool MomentEngine::ensureProductSystemCache(int order, QString* errorMessage)
+{
+    if (productSystemCacheExists(order)) {
+        return true;
+    }
+
+    if (order < 2 || order > 25) {
+        if (errorMessage != nullptr) {
+            *errorMessage = QStringLiteral("Only orders 2 through 25 are supported.");
+        }
+        return false;
+    }
+
+    const QString scriptPath = productSystemGeneratorPath();
+    if (scriptPath.isEmpty()) {
+        if (errorMessage != nullptr) {
+            *errorMessage = QStringLiteral("Cache generator script was not found.");
+        }
+        return false;
+    }
+
+    const QString outputDir = writableProductSystemCacheDir();
+    if (!QDir().mkpath(outputDir)) {
+        if (errorMessage != nullptr) {
+            *errorMessage = QStringLiteral("Could not create cache directory: %1").arg(outputDir);
+        }
+        return false;
+    }
+
+    const QStringList pythonCandidates = {QStringLiteral("python"), QStringLiteral("py")};
+    QString lastOutput;
+    for (const QString& program : pythonCandidates) {
+        QStringList args;
+        if (program == QStringLiteral("py")) {
+            args << QStringLiteral("-3");
+        }
+        args << scriptPath
+             << QStringLiteral("--order") << QString::number(order)
+             << QStringLiteral("--output-dir") << outputDir;
+
+        QProcess process;
+        process.start(program, args);
+        if (!process.waitForStarted(5000)) {
+            lastOutput = process.errorString();
+            continue;
+        }
+        process.waitForFinished(-1);
+        lastOutput = QString::fromLocal8Bit(process.readAllStandardOutput())
+            + QString::fromLocal8Bit(process.readAllStandardError());
+
+        if (process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0
+            && QFile::exists(writableProductSystemCachePath(order))) {
+            return true;
+        }
+    }
+
+    if (errorMessage != nullptr) {
+        *errorMessage = QStringLiteral("Cache generation failed. %1").arg(lastOutput.trimmed());
+    }
+    return false;
+}
+
+ProductSystemInfo MomentEngine::productSystemInfo(int order)
+{
+    ProductSystemInfo info;
+    info.order = order;
+    info.cachePath = productSystemCachePath(order);
+    info.available = QFile::exists(info.cachePath);
+
+    if (!info.available) {
+        info.message = QStringLiteral("No product-system cache is available for k=%1.").arg(order);
+        return info;
+    }
+
+    QFile file(info.cachePath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        info.available = false;
+        info.message = QStringLiteral("Could not open product-system cache: %1").arg(info.cachePath);
+        return info;
+    }
+
+    const QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    if (!doc.isObject()) {
+        info.available = false;
+        info.message = QStringLiteral("Product-system cache is not valid JSON: %1").arg(info.cachePath);
+        return info;
+    }
+
+    const QJsonObject root = doc.object();
+    info.dimension = root.value(QStringLiteral("dimension")).toInt();
+    info.maxFactors = root.value(QStringLiteral("max_factors")).toInt();
+    info.entryCount = root.value(QStringLiteral("entry_count")).toInt();
+    info.termCount = root.value(QStringLiteral("term_count")).toInt();
+    info.elapsedMs = root.value(QStringLiteral("elapsed_ms")).toInt();
+    info.rendersFullMatrix = order <= 7;
+    return info;
+}
+
+QString MomentEngine::productSystemLatex(int order)
+{
+    const QString cachePath = productSystemCachePath(order);
+    QFile file(cachePath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        return QStringLiteral(
+            "\\begin{aligned}\n"
+            "\\mathbf M_{%1} &\\text{ product-system cache is not available.}\\\\[0.35em]\n"
+            "\\text{Run the cache generator to compute } A_{%1}(n).\n"
+            "\\end{aligned}")
+            .arg(order);
+    }
+
+    const QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    if (!doc.isObject()) {
+        return QStringLiteral("\\text{The product-system cache for } k=%1 \\text{ is invalid.}").arg(order);
+    }
+
+    const QJsonObject root = doc.object();
+    const QJsonArray partitions = root.value(QStringLiteral("partitions")).toArray();
+    const QJsonArray entries = root.value(QStringLiteral("entries")).toArray();
+    const int dimension = root.value(QStringLiteral("dimension")).toInt(partitions.size());
+    const int maxFactors = root.value(QStringLiteral("max_factors")).toInt();
+    const int entryCount = root.value(QStringLiteral("entry_count")).toInt(entries.size());
+    const int termCount = root.value(QStringLiteral("term_count")).toInt();
+    const QString matrixSymbol = QStringLiteral("A_{%1}(n)").arg(order);
+    const QString sampleVector = vectorFromPartitions(partitions, QStringLiteral("M"), 8);
+    const QString populationVector = vectorFromPartitions(partitions, QStringLiteral("v"), 8);
+    const QString cachePathLatex = compactPathForLatex(cachePath);
+    const QString matrixNote = order <= 7
+        ? QStringLiteral("\\text{Full matrix is shown in the next card.}")
+        : QStringLiteral("\\text{Full matrix is cached; preview is suppressed for } k>7.");
+
+    return QStringLiteral(
+        "\\begin{aligned}\n"
+        "d_{%1} &= %2,\\qquad \\max_{\\lambda\\vdash %1} |\\lambda| = %3,\\\\[0.35em]\n"
+        "\\mathbf M_{%1} &= %4,\\\\[0.35em]\n"
+        "\\mathbf V_{%1} &= %5,\\\\[0.35em]\n"
+        "\\mathbb{E}[\\mathbf M_{%1}] &= %6\\,\\mathbf V_{%1},\\\\[0.35em]\n"
+        "\\widehat{\\mathbf V}_{%1} &= %6^{-1}\\mathbf M_{%1},\\qquad "
+        "\\widehat v_{%1}=e_1^{\\mathsf T}%6^{-1}\\mathbf M_{%1},\\\\[0.35em]\n"
+        "\\text{cache entries} &= %7,\\qquad \\text{exact terms}=%8,\\\\[0.35em]\n"
+        "(n)_b &= n(n-1)\\cdots(n-b+1),\\qquad (n)_0=1\\quad \\text{(falling factorial)},\\\\[0.35em]\n"
+        "\\text{cache} &= \\text{%9},\\qquad %10.\n"
+        "\\end{aligned}")
+        .arg(order)
+        .arg(dimension)
+        .arg(maxFactors)
+        .arg(sampleVector)
+        .arg(populationVector)
+        .arg(matrixSymbol)
+        .arg(entryCount)
+        .arg(termCount)
+        .arg(cachePathLatex)
+        .arg(matrixNote);
+}
+
+QString MomentEngine::productMatrixLatex(int order)
+{
+    if (order > 7) {
+        return QString();
+    }
+
+    const QString cachePath = productSystemCachePath(order);
+    QFile file(cachePath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        return QString();
+    }
+
+    const QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    if (!doc.isObject()) {
+        return QString();
+    }
+
+    const QJsonObject root = doc.object();
+    const QJsonArray entries = root.value(QStringLiteral("entries")).toArray();
+    const int dimension = root.value(QStringLiteral("dimension")).toInt();
+    if (dimension <= 0) {
+        return QString();
+    }
+
+    QMap<int, QJsonArray> entryMap;
+    for (const QJsonValue& value : entries) {
+        const QJsonObject object = value.toObject();
+        const int row = object.value(QStringLiteral("row")).toInt();
+        const int col = object.value(QStringLiteral("col")).toInt();
+        entryMap.insert(row * dimension + col, object.value(QStringLiteral("terms")).toArray());
+    }
+
+    QStringList rows;
+    for (int row = 0; row < dimension; ++row) {
+        QStringList columns;
+        for (int col = 0; col < dimension; ++col) {
+            const QJsonArray terms = entryMap.value(row * dimension + col);
+            columns << (terms.isEmpty() ? QStringLiteral("0") : entryLatex(terms));
+        }
+        rows << columns.join(QStringLiteral(" & "));
+    }
+
+    return QStringLiteral(
+        "\\begin{gathered}\n"
+        "(n)_b=n(n-1)\\cdots(n-b+1),\\qquad (n)_0=1\\quad \\text{(falling factorial)}\\\\[0.45em]\n"
+        "A_{%1}(n)=\\begin{pmatrix}\n%2\n\\end{pmatrix}\n"
+        "\\end{gathered}")
+        .arg(order)
+        .arg(rows.join(QStringLiteral("\\\\[0.35em]\n")));
+}
+QString MomentEngine::productSystemCachePath(int order)
+{
+    const QString writable = writableProductSystemCachePath(order);
+    if (QFile::exists(writable)) {
+        return writable;
+    }
+
+    const QString bundled = bundledProductSystemCachePath(order);
+    if (QFile::exists(bundled)) {
+        return bundled;
+    }
+
+    return writable;
+}
+
+QString MomentEngine::bundledProductSystemCachePath(int order)
+{
+    const QString fileName = QStringLiteral("product_system_k%1.json").arg(order);
+    const QString appDir = QCoreApplication::applicationDirPath();
+    const QString currentDir = QDir::currentPath();
+    const QStringList candidates = {
+        QDir(appDir).filePath(QStringLiteral("product_system_cache/%1").arg(fileName)),
+        QDir(currentDir).filePath(QStringLiteral("product_system_cache/%1").arg(fileName)),
+        QDir(currentDir).filePath(QStringLiteral("cache/product_systems/%1").arg(fileName)),
+        QDir(appDir).filePath(QStringLiteral("../cache/product_systems/%1").arg(fileName))
+    };
+
+    for (const QString& candidate : candidates) {
+        if (QFile::exists(candidate)) {
+            return QDir::cleanPath(candidate);
+        }
+    }
+
+    return QDir::cleanPath(QDir(appDir).filePath(QStringLiteral("product_system_cache/%1").arg(fileName)));
+}
+
+QString MomentEngine::writableProductSystemCachePath(int order)
+{
+    return QDir(writableProductSystemCacheDir()).filePath(QStringLiteral("product_system_k%1.json").arg(order));
+}
+
+QString MomentEngine::writableProductSystemCacheDir()
+{
+    QString base = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    if (base.isEmpty()) {
+        base = QCoreApplication::applicationDirPath();
+    }
+    return QDir(base).filePath(QStringLiteral("product_system_cache"));
+}
+
+QString MomentEngine::productSystemGeneratorPath()
+{
+    const QString scriptName = QStringLiteral("generate_product_system_cache.py");
+    const QString appDir = QCoreApplication::applicationDirPath();
+    const QString currentDir = QDir::currentPath();
+    const QStringList candidates = {
+        QDir(appDir).filePath(QStringLiteral("tools/%1").arg(scriptName)),
+        QDir(currentDir).filePath(QStringLiteral("tools/%1").arg(scriptName)),
+        QDir(appDir).filePath(QStringLiteral("../tools/%1").arg(scriptName))
+    };
+
+    for (const QString& candidate : candidates) {
+        if (QFile::exists(candidate)) {
+            return QDir::cleanPath(candidate);
+        }
+    }
+    return QString();
+}
 QString MomentEngine::applicationsLatex(int order)
 {
     if (order == 3) {
@@ -414,3 +833,12 @@ QString MomentEngine::formatNumber(long double value)
     }
     return QString::number(static_cast<double>(value), 'g', 10);
 }
+
+
+
+
+
+
+
+
+

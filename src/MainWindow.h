@@ -1,8 +1,9 @@
-#pragma once
+﻿#pragma once
 
 #include "MomentEngine.h"
 
 #include <QMainWindow>
+#include <QSet>
 
 #include <optional>
 
@@ -38,4 +39,7 @@ private:
     QWebEngineView* m_preview = nullptr;
     QPlainTextEdit* m_latexEdit = nullptr;
     QLabel* m_statusLabel = nullptr;
+    QSet<int> m_warnedOnDemandOrders;
 };
+
+

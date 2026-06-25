@@ -16,6 +16,7 @@ D:/Qt\ Projects/Moment_Generator/build/MomentGenerator_autogen/UVLADIE3JM/moc_Ma
   C:/Program\ Files\ (x86)/Windows\ Kits/10/include/10.0.26100.0/ucrt/string.h \
   D:/Qt\ Projects/Moment_Generator/src/MomentEngine.h \
   D:/Qt/6.9.3/msvc2022_64/include/QtCore/QMap \
+  D:/Qt/6.9.3/msvc2022_64/include/QtCore/QSet \
   D:/Qt/6.9.3/msvc2022_64/include/QtCore/QString \
   D:/Qt/6.9.3/msvc2022_64/include/QtCore/QVector \
   D:/Qt/6.9.3/msvc2022_64/include/QtCore/q17memory.h \

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+﻿cmake_minimum_required(VERSION 3.21)
 
 project(MomentGenerator
     VERSION 0.1.0
@@ -32,3 +32,12 @@ target_compile_definitions(MomentGenerator
     PRIVATE
         QT_NO_KEYWORDS
 )
+add_custom_command(TARGET MomentGenerator POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/cache/product_systems"
+        "$<TARGET_FILE_DIR:MomentGenerator>/product_system_cache"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/tools"
+        "$<TARGET_FILE_DIR:MomentGenerator>/tools"
+)
+
